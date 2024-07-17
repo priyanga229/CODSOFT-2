@@ -1,0 +1,97 @@
+import json
+
+contacts = []
+
+def load_contacts(filename='contacts.json'):
+    try:
+        with open(filename, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+
+def save_contacts(contacts, filename='contacts.json'):
+    with open(filename, 'w') as f:
+        json.dump(contacts, f, indent=4)
+
+def add_contact(name, phone, email, address):
+    contacts.append({
+        'name': name,
+        'phone': phone,
+        'email': email,
+        'address': address
+    })
+
+def view_contacts():
+    if not contacts:
+        print("No contacts found.")
+        return
+    for i, contact in enumerate(contacts):
+        print(f"{i + 1}. {contact['name']} - {contact['phone']}")
+
+def search_contacts(query):
+    results = [contact for contact in contacts if query.lower() in contact['name'].lower() or query in contact['phone']]
+    return results
+
+def update_contact(index, name=None, phone=None, email=None, address=None):
+    if name:
+        contacts[index]['name'] = name
+    if phone:
+        contacts[index]['phone'] = phone
+    if email:
+        contacts[index]['email'] = email
+    if address:
+        contacts[index]['address'] = address
+
+def delete_contact(index):
+    contacts.pop(index)
+
+def main():
+    global contacts
+    contacts = load_contacts()
+    
+    while True:
+        print("\n1. Add Contact\n2. View Contact List\n3. Search Contact\n4. Update Contact\n5. Delete Contact\n6. Exit")
+        choice = input("Choose an option: ")
+
+        if choice == '1':
+            name = input("Enter name: ")
+            phone = input("Enter phone number: ")
+            email = input("Enter email: ")
+            address = input("Enter address: ")
+            add_contact(name, phone, email, address)
+        elif choice == '2':
+            view_contacts()
+        elif choice == '3':
+            query = input("Enter name or phone number to search: ")
+            results = search_contacts(query)
+            if results:
+                for i, contact in enumerate(results):
+                    print(f"{i + 1}. {contact['name']} - {contact['phone']}")
+            else:
+                print("No matching contacts found.")
+        elif choice == '4':
+            view_contacts()
+            index = int(input("Enter contact number to update: ")) - 1
+            if 0 <= index < len(contacts):
+                name = input("Enter new name (leave blank to keep current): ")
+                phone = input("Enter new phone number (leave blank to keep current): ")
+                email = input("Enter new email (leave blank to keep current): ")
+                address = input("Enter new address (leave blank to keep current): ")
+                update_contact(index, name if name else None, phone if phone else None, email if email else None, address if address else None)
+            else:
+                print("Invalid contact number.")
+        elif choice == '5':
+            view_contacts()
+            index = int(input("Enter contact number to delete: ")) - 1
+            if 0 <= index < len(contacts):
+                delete_contact(index)
+            else:
+                print("Invalid contact number.")
+        elif choice == '6':
+            save_contacts(contacts)
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
